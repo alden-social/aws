@@ -1,0 +1,55 @@
+#!/bin/bash
+ 
+# Check if the script is run as root
+if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run as root" 
+    exit 1
+fi
+ 
+# Update the system
+echo "Updating the system..."
+yum update -y
+ 
+# Install httpd
+echo "Installing httpd..."
+yum install httpd -y
+ 
+# Start httpd service
+echo "Starting httpd service..."
+systemctl start httpd
+ 
+# Enable httpd to start on boot
+echo "Enabling httpd service to start on boot..."
+systemctl enable httpd
+ 
+# Create a simple webpage
+echo "Creating a simple webpage..."
+cat <<EOL > /var/www/html/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Apache</title>
+</head>
+<body>
+    <h1>Welcome to Blue Server!</h1>
+    <p>This is a simple webpage served by Apache.</p>
+</body>
+</html>
+EOL
+ 
+# Set correct permissions
+echo "Setting correct permissions for the webpage..."
+chown apache:apache /var/www/html/index.html
+chmod 644 /var/www/html/index.html
+ 
+# Restart httpd service to apply changes
+echo "Restarting httpd service..."
+systemctl restart httpd
+ 
+# Print status
+echo "Apache HTTP Server is installed and running."
+systemctl status httpd | grep "Active:"
+ 
+exit 0
